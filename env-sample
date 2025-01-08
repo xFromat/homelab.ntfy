@@ -1,0 +1,4 @@
+NTFY_VERSION=v2.11.0-arm64v8
+NTFY_PATH=./ntfy
+NTFY_HOST_NAME=subdomain.pub-domain.tld
+TRAEFIK_CERT_RESOLVER=default

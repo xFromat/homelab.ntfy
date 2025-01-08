@@ -1,0 +1,35 @@
+---
+services:
+  ntfy:
+    image: docker.io/binwiederhier/ntfy:${NTFY_VERSION}
+    container_name: ntfy
+    command:
+      - serve
+    environment:
+      - TZ=Poland/Warsaw
+      - NTFY_BEHIND_PROXY=true
+      - NTFY_BASE_URL=http://${NTFY_HOST_NAME}
+      - NTFY_AUTH_FILE=/var/lib/ntfy/auth.db
+      - NTFY_CACHE_FILE=/var/cache/ntfy/cache.db
+      - NTFY_AUTH_DEFAULT_ACCESS=deny-all
+      - NTFY_ENABLE_LOGIN=true
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.ntfy.entrypoints=websecure
+      - traefik.http.routers.ntfy.rule=Host(`${NTFY_HOST_NAME}`)
+      - traefik.services.ntfy.loadbalancer.server.port=443
+      - traefik.http.routers.ntfy.tls=true
+      - traefik.http.routers.ntfy.tls.certresolver=${TRAEFIK_CERT_RESOLVER}
+    user: 1004:1004
+    volumes:
+      - $NTFY_PATH/var/cache/ntfy:/var/cache/ntfy
+      - $NTFY_PATH/etc/ntfy:/etc/ntfy
+      - $NTFY_PATH/auth:/var/lib/ntfy
+    networks:
+      rproxy:
+        ipv4_address: 10.0.0.5
+    restart: unless-stopped
+
+networks:
+  rproxy:
+    external: true
